@@ -12,6 +12,8 @@ import TopExperiencesView from './components/TopExperiencesView';
 import BSTLookupView from './components/BSTLookupView';
 import { AnalyticsView } from './components/AnalyticsView';
 import { MemoryLaneView } from './components/MemoryLaneView';
+import Toast from './components/Toast';
+import ConfirmationModal from './components/ConfirmationModal';
 
 import {
   checkBackendHealth, fetchExperiences, fetchExperienceById,
@@ -25,16 +27,26 @@ export default function App() {
   const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Theme state: dark / light
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('lifelog-theme') || 'dark';
+  });
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('lifelog-theme', next);
+  };
 
   // Modal states
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [editingExperience, setEditingExperience] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const showNotification = (msg, type = 'info') => {
     setNotification({ msg, type });
-    setTimeout(() => {
-      setNotification(null);
-    }, 4000);
   };
 
   const loadHealth = async () => {
@@ -87,38 +99,46 @@ export default function App() {
     showNotification(`Experience #${id} updated successfully!`, 'success');
   };
 
-  const handleDeleteExperience = async (id) => {
-    await deleteExperience(id);
-    setExperiences((prev) => prev.filter((item) => item.id !== id));
-    if (selectedExperience && selectedExperience.id === id) {
-      setSelectedExperience(null);
+  const executeDeleteExperience = async () => {
+    if (!deleteConfirmId) return;
+    const id = deleteConfirmId;
+    setDeleteConfirmId(null);
+    try {
+      await deleteExperience(id);
+      setExperiences((prev) => prev.filter((item) => item.id !== id));
+      if (selectedExperience && selectedExperience.id === id) {
+        setSelectedExperience(null);
+      }
+      showNotification(`Experience #${id} permanently deleted.`, 'info');
+    } catch {
+      showNotification(`Failed to delete experience #${id}`, 'error');
     }
-    showNotification(`Experience #${id} deleted`, 'info');
   };
 
   const handleSearch = async (query) => {
     if (!query || !query.trim()) {
-      loadExperiences();
-      return;
+      return loadExperiences();
     }
     try {
-      const results = await searchExperiences(query);
+      setLoading(true);
+      const results = await searchExperiences(query.trim());
       setExperiences(results || []);
     } catch (err) {
       console.error('Search failed:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleCategoryFilter = async (category) => {
-    if (!category || category === 'All') {
-      loadExperiences();
-      return;
-    }
     try {
+      setLoading(true);
       const results = await filterByCategory(category);
       setExperiences(results || []);
     } catch (err) {
       console.error('Category filter failed:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,33 +147,69 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
-      <Navbar health={health} onRefreshHealth={loadHealth} />
+    <div className={`min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white ${
+      theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-900 text-slate-100'
+    }`}>
+      <Navbar
+        health={health}
+        onRefreshHealth={loadHealth}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      />
 
       {/* Notification Toast */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50">
+        <Toast
+          message={notification.msg}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteConfirmId)}
+        title="Delete Experience"
+        message="Are you sure you want to permanently delete this experience? It will be removed from PostgreSQL and custom Java DSA indices."
+        confirmLabel="Delete Experience"
+        isDanger={true}
+        onConfirm={executeDeleteExperience}
+        onCancel={() => setDeleteConfirmId(null)}
+      />
+
+      {/* Mobile Navigation Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden flex">
           <div
-            className={`px-4 py-3 rounded-2xl border text-xs font-semibold shadow-2xl backdrop-blur-md ${
-              notification.type === 'success'
-                ? 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200'
-                : 'bg-slate-900/90 border-slate-700 text-slate-200'
-            }`}
-          >
-            {notification.msg}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div className="relative z-50 w-72 bg-slate-950 border-r border-slate-800 h-full flex flex-col">
+            <Sidebar
+              currentTab={currentTab}
+              setTab={(tab) => {
+                setTab(tab);
+                setIsMobileMenuOpen(false);
+              }}
+              experienceCount={experiences.length}
+            />
           </div>
         </div>
       )}
 
       {/* Main Layout */}
       <div className="flex-1 flex overflow-hidden">
-        <Sidebar
-          currentTab={currentTab}
-          setTab={setTab}
-          experienceCount={experiences.length}
-        />
+        <div className="hidden md:flex">
+          <Sidebar
+            currentTab={currentTab}
+            setTab={setTab}
+            experienceCount={experiences.length}
+          />
+        </div>
 
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-950/50">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-slate-950/50">
           <div className="max-w-6xl mx-auto">
             {currentTab === 'dashboard' && (
               <Dashboard
@@ -169,7 +225,7 @@ export default function App() {
                 experiences={experiences}
                 onView={handleViewExperience}
                 onEdit={(exp) => setEditingExperience(exp)}
-                onDelete={handleDeleteExperience}
+                onDelete={(id) => setDeleteConfirmId(id)}
                 onNavigate={setTab}
                 onSearch={handleSearch}
                 onCategoryFilter={handleCategoryFilter}
@@ -238,7 +294,7 @@ export default function App() {
             setEditingExperience(exp);
           }}
           onDelete={(id) => {
-            handleDeleteExperience(id);
+            setDeleteConfirmId(id);
             setSelectedExperience(null);
           }}
         />

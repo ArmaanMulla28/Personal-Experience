@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Sparkles, Calendar, ArrowRight, RefreshCw, Star, MapPin } from 'lucide-react';
 import { fetchMemoryLane } from '../services/api';
 
 export function MemoryLaneView({ onViewDetails, onNavigate }) {
@@ -40,26 +41,26 @@ export function MemoryLaneView({ onViewDetails, onNavigate }) {
     switch (type) {
       case 'EXACT_DAY_ANNIVERSARY':
         return {
-          bg: 'bg-rose-100 text-rose-800 border-rose-200',
+          bg: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
           icon: '🎉',
           tag: label || 'Anniversary Flashback',
         };
       case 'SAME_MONTH_REFLECTION':
         return {
-          bg: 'bg-amber-100 text-amber-800 border-amber-200',
+          bg: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
           icon: '📅',
           tag: label || 'Monthly Memory',
         };
       case 'ORIGIN_MILESTONE':
         return {
-          bg: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+          bg: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
           icon: '🌱',
           tag: label || 'Genesis Milestone',
         };
       case 'STANDOUT_ACHIEVEMENT':
       default:
         return {
-          bg: 'bg-purple-100 text-purple-800 border-purple-200',
+          bg: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
           icon: '⭐',
           tag: label || 'Standout Achievement',
         };
@@ -67,55 +68,54 @@ export function MemoryLaneView({ onViewDetails, onNavigate }) {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <div className="space-y-8">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 text-white p-8 md:p-10 shadow-xl">
-        <div className="relative z-10 max-w-3xl space-y-3">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-950/60 via-orange-950/40 to-slate-900 text-white p-6 sm:p-8 border border-amber-500/30 shadow-xl">
+        <div className="relative z-10 max-w-2xl space-y-3">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-white/20 backdrop-blur text-white text-xs font-bold rounded-full uppercase tracking-wider">
+            <span className="px-3 py-0.5 bg-amber-500/20 text-amber-300 text-xs font-bold rounded-full border border-amber-500/30 uppercase tracking-wider">
               Signature LifeLog Feature
             </span>
-            <span className="text-amber-100 text-xs font-medium">Memory Lane & Nostalgia</span>
+            <span className="text-slate-400 text-xs font-medium">Memory Lane & Flashbacks</span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white">
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-100">
             On This Day in History
-          </h1>
-          <p className="text-amber-100 text-sm md:text-base leading-relaxed">
-            Revisit personal milestones, anniversaries, and standout achievements from your journey.
-            Viewing a memory automatically records it in your custom Java LIFO Recently Viewed Stack.
+          </h2>
+          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+            Revisit milestones and memories logged across previous months and years.
+            Opening a memory automatically pushes it into your custom Java LIFO Recently Viewed Stack.
           </p>
 
           {/* Date Picker Bar */}
-          <div className="pt-4 flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 rounded-xl px-3 py-1.5 text-sm">
-              <span className="text-white/80 text-xs font-semibold uppercase">Reference Date:</span>
+          <div className="pt-2 flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs">
+              <span className="text-slate-400 font-semibold uppercase text-[10px]">Reference Date:</span>
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent text-white font-medium focus:outline-none cursor-pointer"
+                className="bg-transparent text-slate-100 font-mono font-medium focus:outline-none cursor-pointer text-xs"
               />
             </div>
             <button
               onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
-              className="px-3 py-1.5 bg-white text-orange-700 hover:bg-amber-50 font-bold text-xs rounded-xl shadow transition"
+              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition cursor-pointer shadow"
             >
               Today
             </button>
           </div>
         </div>
 
-        {/* Decorative elements */}
-        <div className="absolute -top-12 -right-12 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-        <div className="absolute -bottom-12 -right-6 w-48 h-48 bg-amber-400/20 rounded-full blur-xl pointer-events-none"></div>
+        {/* Decorative blur circle */}
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
         <div className="flex flex-wrap items-center gap-2">
           {[
             { id: 'ALL', label: 'All Memories', icon: '✨' },
-            { id: 'ANNIVERSARY', label: 'Exact Anniversaries', icon: '🎉' },
+            { id: 'ANNIVERSARY', label: 'Anniversaries', icon: '🎉' },
             { id: 'MONTH', label: 'Same Month', icon: '📅' },
             { id: 'HIGHLIGHT', label: '5-Star Standouts', icon: '⭐' },
             { id: 'GENESIS', label: 'Genesis Origins', icon: '🌱' },
@@ -123,10 +123,10 @@ export function MemoryLaneView({ onViewDetails, onNavigate }) {
             <button
               key={tab.id}
               onClick={() => setFilterType(tab.id)}
-              className={`px-4 py-2 text-xs font-bold rounded-xl transition flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 cursor-pointer ${
                 filterType === tab.id
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-slate-800'
               }`}
             >
               <span>{tab.icon}</span>
@@ -135,87 +135,87 @@ export function MemoryLaneView({ onViewDetails, onNavigate }) {
           ))}
         </div>
 
-        <span className="text-xs font-semibold text-slate-500">
-          Showing {filteredMemories.length} {filteredMemories.length === 1 ? 'memory' : 'memories'}
+        <span className="text-xs font-semibold text-slate-500 font-mono">
+          {filteredMemories.length} {filteredMemories.length === 1 ? 'memory' : 'memories'}
         </span>
       </div>
 
       {/* Content State */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-64 bg-slate-100 rounded-2xl animate-pulse"></div>
+            <div key={i} className="h-56 bg-slate-900/60 border border-slate-800 rounded-2xl animate-pulse"></div>
           ))}
         </div>
       ) : error ? (
-        <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 flex items-center justify-between">
+        <div className="p-6 bg-rose-950/40 border border-rose-500/30 rounded-2xl text-rose-300 flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-lg">Error loading Memory Lane</h3>
-            <p className="text-sm mt-1">{error}</p>
+            <h3 className="font-semibold text-sm">Error loading Memory Lane</h3>
+            <p className="text-xs text-rose-400 mt-1">{error}</p>
           </div>
           <button
             onClick={() => loadMemories(selectedDate)}
-            className="px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 font-medium text-sm transition"
+            className="px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-500 font-semibold text-xs transition"
           >
             Retry
           </button>
         </div>
       ) : filteredMemories.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8 space-y-4 shadow-sm">
-          <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-3xl mx-auto">
+        <div className="text-center py-12 rounded-3xl border border-dashed border-slate-800 p-8 space-y-3">
+          <div className="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center text-2xl mx-auto">
             ⏳
           </div>
-          <h3 className="text-xl font-bold text-slate-800">No Memories Found for This Filter</h3>
-          <p className="text-sm text-slate-500 max-w-md mx-auto">
-            No experiences match the criteria on this reference date. Try switching the date or logging more milestones into your timeline!
+          <h3 className="text-base font-bold text-slate-200">No Memories Found for This Date</h3>
+          <p className="text-xs text-slate-400 max-w-md mx-auto">
+            No logged milestones align with this reference date. Try selecting another date or log more experiences!
           </p>
-          <div className="pt-2 flex justify-center gap-3">
+          <div className="pt-2 flex justify-center gap-2">
             <button
               onClick={() => setFilterType('ALL')}
-              className="px-4 py-2 bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl hover:bg-slate-200 transition"
+              className="px-3.5 py-1.5 bg-slate-800 text-slate-300 font-semibold text-xs rounded-xl hover:bg-slate-700 transition cursor-pointer"
             >
               Show All Memories
             </button>
             <button
               onClick={() => onNavigate('experiences')}
-              className="px-4 py-2 bg-slate-900 text-white font-semibold text-xs rounded-xl hover:bg-slate-800 transition"
+              className="px-3.5 py-1.5 bg-indigo-600 text-white font-semibold text-xs rounded-xl hover:bg-indigo-500 transition cursor-pointer"
             >
               Browse All Experiences
             </button>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredMemories.map((m) => {
             const badge = getMemoryBadge(m.memoryType, m.milestoneLabel);
             return (
               <div
                 key={m.experienceId}
-                className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition flex flex-col justify-between group space-y-4 relative overflow-hidden"
+                className="p-5 rounded-3xl bg-slate-900/60 border border-slate-800/80 hover:border-amber-500/40 transition flex flex-col justify-between space-y-3 group"
               >
                 {/* Top Badge & Time Ago */}
                 <div className="flex items-center justify-between gap-2">
                   <span
-                    className={`px-3 py-1 text-xs font-bold rounded-full border flex items-center gap-1.5 ${badge.bg}`}
+                    className={`px-2.5 py-0.5 text-[11px] font-bold rounded-full border flex items-center gap-1.5 ${badge.bg}`}
                   >
                     <span>{badge.icon}</span>
                     <span>{badge.tag}</span>
                   </span>
-                  <span className="text-xs font-semibold text-slate-400">
-                    {m.daysAgo} days ago ({m.experienceDate})
+                  <span className="text-[11px] font-semibold text-slate-400 font-mono">
+                    {m.daysAgo}d ago ({m.experienceDate})
                   </span>
                 </div>
 
                 {/* Title & Category */}
                 <div>
-                  <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-amber-600 transition">
+                  <h3 className="text-lg font-bold text-slate-100 group-hover:text-amber-300 transition">
                     {m.title}
                   </h3>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
-                    <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md font-semibold">
+                  <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-400">
+                    <span className="px-2 py-0.5 bg-slate-800 rounded text-slate-300 font-semibold text-[11px]">
                       {m.category}
                     </span>
-                    <span className="flex items-center text-amber-500 font-bold">
+                    <span className="flex items-center text-amber-400 font-bold">
                       {'★'.repeat(m.rating || 5)} ({m.rating}/5)
                     </span>
                     {m.location && <span>📍 {m.location}</span>}
@@ -223,21 +223,21 @@ export function MemoryLaneView({ onViewDetails, onNavigate }) {
                 </div>
 
                 {/* Description snippet */}
-                <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed">
-                  {m.description || 'No description recorded for this milestone.'}
+                <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                  {m.description || 'No description recorded.'}
                 </p>
 
                 {/* Nostalgic Prompt Box */}
                 {m.reflectionPrompt && (
-                  <div className="p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-2xl text-xs text-amber-900">
-                    <span className="font-bold block text-amber-800 mb-0.5">💡 Nostalgic Reflection</span>
-                    <p className="italic text-amber-950/80 leading-normal">{m.reflectionPrompt}</p>
+                  <div className="p-3 bg-amber-950/20 border border-amber-500/20 rounded-2xl text-[11px] text-amber-200">
+                    <span className="font-bold block text-amber-300 mb-0.5">💡 Nostalgic Reflection</span>
+                    <p className="italic text-slate-300">{m.reflectionPrompt}</p>
                   </div>
                 )}
 
                 {/* Action button */}
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 italic">
+                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-500 font-mono">
                     ID #{m.experienceId} • Pushes to LIFO Stack
                   </span>
                   <button
@@ -252,10 +252,10 @@ export function MemoryLaneView({ onViewDetails, onNavigate }) {
                         rating: m.rating,
                       })
                     }
-                    className="px-4 py-2 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-xl text-xs font-bold hover:from-amber-600 hover:to-orange-600 transition flex items-center gap-1.5 shadow-sm"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition cursor-pointer shadow"
                   >
                     <span>View Memory</span>
-                    <span>→</span>
+                    <ArrowRight className="h-3 w-3" />
                   </button>
                 </div>
               </div>
