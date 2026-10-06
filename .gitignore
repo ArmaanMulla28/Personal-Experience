@@ -1,0 +1,16 @@
+# Maven
+server/target/
+*.class
+
+# Node / Vite
+client/node_modules/
+client/dist/
+client/.vite/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+ROADMAP_EXTRACTED.md
