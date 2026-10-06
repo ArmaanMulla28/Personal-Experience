@@ -32,12 +32,24 @@ public class ExperienceController {
         this.experienceSearchService = experienceSearchService;
     }
 
+    /**
+     * GET /api/experiences
+     * Supports sorting via query params:
+     * - sortBy: "date", "rating", "title"
+     * - direction: "asc", "desc"
+     */
     @GetMapping
-    public ResponseEntity<List<Experience>> getAllExperiences() {
-        List<Experience> experiences = experienceService.getAllExperiences();
+    public ResponseEntity<List<Experience>> getAllExperiences(
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String direction
+    ) {
+        List<Experience> experiences = experienceService.getAllExperiences(sortBy, direction);
         return ResponseEntity.ok(experiences);
     }
 
+    /**
+     * POST /api/experiences
+     */
     @PostMapping
     public ResponseEntity<Experience> createExperience(@Valid @RequestBody ExperienceRequestDTO request) {
         Experience created = experienceService.createExperience(request);
@@ -45,17 +57,35 @@ public class ExperienceController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    /**
+     * GET /api/experiences/{id}
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Experience> getExperienceById(@PathVariable Long id) {
         return experienceService.getExperienceById(id)
                 .map(exp -> {
-                    // Push to Recently Viewed Stack (LIFO)
                     recentlyViewedService.recordView(ExperienceItem.fromEntity(exp));
                     return ResponseEntity.ok(exp);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * PUT /api/experiences/{id}
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Experience> updateExperience(
+            @PathVariable Long id,
+            @Valid @RequestBody ExperienceRequestDTO request
+    ) {
+        Experience updated = experienceService.updateExperience(id, request);
+        experienceSearchService.indexExperience(ExperienceItem.fromEntity(updated));
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * DELETE /api/experiences/{id}
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExperience(@PathVariable Long id) {
         boolean deleted = experienceService.deleteExperience(id);
@@ -64,5 +94,32 @@ public class ExperienceController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * GET /api/experiences/search?query=...
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<Experience>> searchExperiences(@RequestParam(required = false) String query) {
+        List<Experience> results = experienceService.searchExperiences(query);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * GET /api/experiences/category/{category}
+     */
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<Experience>> getExperiencesByCategory(@PathVariable String category) {
+        List<Experience> results = experienceService.getExperiencesByCategory(category);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * GET /api/experiences/rating/{rating}
+     */
+    @GetMapping("/rating/{rating}")
+    public ResponseEntity<List<Experience>> getExperiencesByRating(@PathVariable Integer rating) {
+        List<Experience> results = experienceService.getExperiencesByRating(rating);
+        return ResponseEntity.ok(results);
     }
 }

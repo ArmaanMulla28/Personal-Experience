@@ -1,19 +1,31 @@
 package com.lifelog.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public class ExperienceRequestDTO {
 
     @NotBlank(message = "Title is required")
+    @Size(max = 255, message = "Title must not exceed 255 characters")
     private String title;
 
     @NotBlank(message = "Category is required")
+    @Size(max = 100, message = "Category must not exceed 100 characters")
     private String category;
 
+    @Size(max = 5000, message = "Description must not exceed 5000 characters")
     private String description;
+
+    @Size(max = 255, message = "Location must not exceed 255 characters")
     private String location;
+
     private LocalDate experienceDate;
+
+    @Min(value = 1, message = "Rating must be at least 1")
+    @Max(value = 5, message = "Rating must not exceed 5")
     private Integer rating;
 
     public ExperienceRequestDTO() {
