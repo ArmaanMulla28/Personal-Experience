@@ -1,7 +1,8 @@
 import React from 'react';
 import {
   LayoutDashboard, BookOpen, PlusCircle,
-  GitCommit, Clock, Layers, Trophy, Search, Database
+  GitCommit, Clock, Layers, Trophy, Search, Database,
+  BarChart3, Sparkles
 } from 'lucide-react';
 
 export default function Sidebar({ currentTab, setTab, experienceCount }) {
@@ -9,6 +10,11 @@ export default function Sidebar({ currentTab, setTab, experienceCount }) {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'experiences', label: 'Experiences', icon: BookOpen, count: experienceCount },
     { id: 'add-experience', label: 'Add Experience', icon: PlusCircle },
+  ];
+
+  const phase5Nav = [
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, badge: 'Insights' },
+    { id: 'memory-lane', label: 'Memory Lane', icon: Sparkles, badge: 'Signature' },
   ];
 
   const dsaNav = [
@@ -49,6 +55,38 @@ export default function Sidebar({ currentTab, setTab, experienceCount }) {
                       {item.count}
                     </span>
                   )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Phase 5: Intelligence & Memories */}
+        <div>
+          <p className="px-3 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+            Intelligence & Memories
+          </p>
+          <nav className="mt-2 space-y-1">
+            {phase5Nav.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setTab(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`h-4 w-4 ${isActive ? 'text-amber-400' : 'text-slate-500'}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-900 text-amber-400/80 border border-slate-800 font-mono">
+                    {item.badge}
+                  </span>
                 </button>
               );
             })}

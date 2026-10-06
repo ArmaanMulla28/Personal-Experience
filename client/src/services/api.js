@@ -198,3 +198,27 @@ export async function fetchBstStats() {
   }
   return await res.json();
 }
+
+// ==========================================
+// PHASE 5: ANALYTICS & MEMORY LANE APIS
+// ==========================================
+
+export async function fetchAnalytics() {
+  const res = await fetch(`${API_BASE}/experiences/analytics`);
+  if (!res.ok) {
+    throw new Error('Failed to fetch analytics data');
+  }
+  return await res.json();
+}
+
+export async function fetchMemoryLane(date = null) {
+  const url = date
+    ? `${API_BASE}/experiences/memory-lane?date=${encodeURIComponent(date)}`
+    : `${API_BASE}/experiences/memory-lane`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error('Failed to fetch memory lane');
+  }
+  return await res.json();
+}
+

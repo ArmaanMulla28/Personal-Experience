@@ -43,12 +43,54 @@ export default function Dashboard({ experiences, health, onNavigate, onSelectExp
           </p>
         </div>
 
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onNavigate('memory-lane')}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-300 hover:text-white text-xs font-semibold transition cursor-pointer"
+          >
+            <span>✨</span>
+            <span>Memory Lane</span>
+          </button>
+          <button
+            onClick={() => onNavigate('analytics')}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-semibold transition cursor-pointer"
+          >
+            <span>📊</span>
+            <span>Analytics</span>
+          </button>
+          <button
+            onClick={() => onNavigate('add-experience')}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition cursor-pointer"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Add Experience
+          </button>
+        </div>
+      </div>
+
+      {/* Phase 5 Signature Feature Flash Card */}
+      <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-950/40 via-orange-950/20 to-slate-900 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-lg shrink-0">
+            ✨
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Memory Lane Flashback</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20">Phase 5</span>
+            </div>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Reflect on past anniversaries and historical milestones logged on this calendar day.
+            </p>
+          </div>
+        </div>
+
         <button
-          onClick={() => onNavigate('add-experience')}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition cursor-pointer self-start sm:self-auto"
+          onClick={() => onNavigate('memory-lane')}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shrink-0 cursor-pointer shadow"
         >
-          <PlusCircle className="h-4 w-4" />
-          Add Experience
+          <span>Explore Memory Lane</span>
+          <ArrowRight className="h-3.5 w-3.5" />
         </button>
       </div>
 

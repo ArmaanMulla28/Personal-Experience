@@ -10,6 +10,8 @@ import TimelineView from './components/TimelineView';
 import PendingQueueView from './components/PendingQueueView';
 import TopExperiencesView from './components/TopExperiencesView';
 import BSTLookupView from './components/BSTLookupView';
+import { AnalyticsView } from './components/AnalyticsView';
+import { MemoryLaneView } from './components/MemoryLaneView';
 
 import {
   checkBackendHealth, fetchExperiences, fetchExperienceById,
@@ -206,6 +208,20 @@ export default function App() {
             {currentTab === 'bst-lookup' && (
               <BSTLookupView
                 onSelectExperience={handleViewExperience}
+              />
+            )}
+
+            {currentTab === 'analytics' && (
+              <AnalyticsView
+                onNavigate={setTab}
+                onViewDetails={handleViewExperience}
+              />
+            )}
+
+            {currentTab === 'memory-lane' && (
+              <MemoryLaneView
+                onNavigate={setTab}
+                onViewDetails={handleViewExperience}
               />
             )}
           </div>
