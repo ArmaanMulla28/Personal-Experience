@@ -1,53 +1,51 @@
 import React from 'react';
-import { LayoutDashboard, BookOpen, PlusCircle, Layers, Database } from 'lucide-react';
+import {
+  LayoutDashboard, BookOpen, PlusCircle,
+  GitCommit, Clock, Layers, Trophy, Search, Database
+} from 'lucide-react';
 
 export default function Sidebar({ currentTab, setTab, experienceCount }) {
-  const navItems = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: LayoutDashboard,
-    },
-    {
-      id: 'experiences',
-      label: 'Experiences',
-      icon: BookOpen,
-      count: experienceCount,
-    },
-    {
-      id: 'add-experience',
-      label: 'Add Experience',
-      icon: PlusCircle,
-    },
+  const mainNav = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'experiences', label: 'Experiences', icon: BookOpen, count: experienceCount },
+    { id: 'add-experience', label: 'Add Experience', icon: PlusCircle },
+  ];
+
+  const dsaNav = [
+    { id: 'timeline', label: 'Timeline', icon: GitCommit, badge: 'Linked List' },
+    { id: 'pending-queue', label: 'Pending Queue', icon: Layers, badge: 'Queue (FIFO)' },
+    { id: 'top-rated', label: 'Top Rated', icon: Trophy, badge: 'Max Heap' },
+    { id: 'bst-lookup', label: 'BST Fast Lookup', icon: Search, badge: 'BST' },
   ];
 
   return (
-    <aside className="w-64 border-r border-slate-800 bg-slate-950/40 p-4 flex flex-col justify-between shrink-0">
+    <aside className="w-64 border-r border-slate-800 bg-slate-950/60 p-4 flex flex-col justify-between shrink-0 overflow-y-auto">
       <div className="space-y-6">
+        {/* Main Section */}
         <div>
-          <p className="px-3 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
-            Menu
+          <p className="px-3 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+            Navigation
           </p>
           <nav className="mt-2 space-y-1">
-            {navItems.map((item) => {
+            {mainNav.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => setTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/30'
+                      ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/30 shadow-sm'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <Icon className={`h-4 w-4 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.count !== undefined && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60 font-mono">
                       {item.count}
                     </span>
                   )}
@@ -57,43 +55,45 @@ export default function Sidebar({ currentTab, setTab, experienceCount }) {
           </nav>
         </div>
 
-        {/* DSA Academic Structure Preview */}
-        <div className="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3.5 space-y-2.5">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-            <Layers className="h-4 w-4 text-purple-400" />
-            <span>Java DSA Modules</span>
-          </div>
-          <p className="text-[11px] text-slate-400 leading-relaxed">
-            Prepared in <code className="text-indigo-300">com.lifelog.dsa</code>:
+        {/* DSA Features Section */}
+        <div>
+          <p className="px-3 text-[10px] font-bold tracking-wider text-slate-500 uppercase">
+            Java DSA Views
           </p>
-          <ul className="text-[11px] space-y-1.5 text-slate-400">
-            <li className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
-              <span>1. Custom Linked List</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
-              <span>2. Custom Stack</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
-              <span>3. Custom Queue</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
-              <span>4. Binary Search Tree</span>
-            </li>
-            <li className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
-              <span>5. Priority Queue / Max Heap</span>
-            </li>
-          </ul>
+          <nav className="mt-2 space-y-1">
+            {dsaNav.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setTab(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/30 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`h-4 w-4 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
+                    <span>{item.label}</span>
+                  </div>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800 font-mono">
+                    {item.badge}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
       </div>
 
-      <div className="p-3 rounded-lg border border-slate-800/60 bg-slate-900/20 text-[11px] text-slate-400 flex items-center gap-2">
-        <Database className="h-4 w-4 text-emerald-400 shrink-0" />
-        <span>PostgreSQL schema: <span className="text-slate-300">experiences</span></span>
+      {/* Backend Status footer */}
+      <div className="pt-4 border-t border-slate-800/80">
+        <div className="p-3 rounded-xl border border-slate-800/60 bg-slate-900/40 text-[11px] text-slate-400 flex items-center gap-2">
+          <Database className="h-4 w-4 text-emerald-400 shrink-0" />
+          <span>PostgreSQL + Custom Java DSA</span>
+        </div>
       </div>
     </aside>
   );

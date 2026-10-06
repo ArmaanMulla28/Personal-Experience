@@ -1,162 +1,276 @@
-import React from 'react';
-import { BookOpen, Star, PlusCircle, Server, CheckCircle2, Award, Calendar, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  BookOpen, Star, Award, Server, CheckCircle2,
+  Calendar, Layers, Clock, Trophy, PlusCircle, ArrowRight
+} from 'lucide-react';
+import {
+  fetchTimeline, fetchRecentlyViewed,
+  fetchPendingExperiences, fetchTopExperiences
+} from '../services/api';
 
-export default function Dashboard({ experiences, health, onNavigate }) {
+export default function Dashboard({ experiences, health, onNavigate, onSelectExperience }) {
+  const [recentStack, setRecentStack] = useState([]);
+  const [topHeap, setTopHeap] = useState([]);
+  const [pendingQueue, setPendingQueue] = useState([]);
+  const [timelineNodes, setTimelineNodes] = useState([]);
+
+  useEffect(() => {
+    // Fetch live DSA data for dashboard widgets
+    fetchRecentlyViewed(4).then(data => setRecentStack(data || [])).catch(() => {});
+    fetchTopExperiences(3).then(data => setTopHeap(data || [])).catch(() => {});
+    fetchPendingExperiences().then(data => setPendingQueue(data || [])).catch(() => {});
+    fetchTimeline().then(data => setTimelineNodes(data || [])).catch(() => {});
+  }, [experiences]);
+
   const totalCount = experiences.length;
   const avgRating = totalCount > 0
     ? (experiences.reduce((acc, curr) => acc + (curr.rating || 0), 0) / totalCount).toFixed(1)
     : '0.0';
 
-  const categories = [...new Set(experiences.map((e) => e.category))];
+  const projectsCount = experiences.filter(e => e.category?.toLowerCase() === 'projects').length;
+  const competitionsCount = experiences.filter(e => e.category?.toLowerCase() === 'competitions' || e.category?.toLowerCase() === 'hackathons').length;
+  const workshopsCount = experiences.filter(e => e.category?.toLowerCase() === 'workshops').length;
+  const achievementsCount = experiences.filter(e => e.category?.toLowerCase() === 'achievements').length;
 
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-100">Project Overview</h2>
-        <p className="text-sm text-slate-400 mt-1">
-          LifeLog foundation status, REST API connectivity, and experience summary.
-        </p>
-      </div>
-
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Experiences</span>
-            <BookOpen className="h-5 w-5 text-indigo-400" />
-          </div>
-          <p className="text-3xl font-extrabold text-slate-100 mt-3">{totalCount}</p>
-          <p className="text-xs text-slate-400 mt-1">Logged across all categories</p>
-        </div>
-
-        <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Average Rating</span>
-            <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-          </div>
-          <p className="text-3xl font-extrabold text-slate-100 mt-3">{avgRating} / 5</p>
-          <p className="text-xs text-slate-400 mt-1">Self-assessed impact score</p>
-        </div>
-
-        <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Categories</span>
-            <Award className="h-5 w-5 text-purple-400" />
-          </div>
-          <p className="text-3xl font-extrabold text-slate-100 mt-3">{categories.length}</p>
-          <p className="text-xs text-slate-400 mt-1">Distinct experience types</p>
-        </div>
-
-        <div className="p-5 rounded-2xl border border-slate-800 bg-slate-900/60 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Backend API</span>
-            <Server className="h-5 w-5 text-emerald-400" />
-          </div>
-          <p className="text-xl font-bold text-emerald-400 mt-3 flex items-center gap-1.5">
-            <CheckCircle2 className="h-5 w-5" />
-            {health?.status === 'ok' ? 'Healthy' : 'Connecting...'}
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-100">LifeLog Dashboard</h2>
           <p className="text-xs text-slate-400 mt-1">
-            Endpoint: <code className="text-slate-300">GET /api/health</code>
+            Personal Experience Tracker powered by 5 custom Java Data Structures.
+          </p>
+        </div>
+
+        <button
+          onClick={() => onNavigate('add-experience')}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition cursor-pointer self-start sm:self-auto"
+        >
+          <PlusCircle className="h-4 w-4" />
+          Add Experience
+        </button>
+      </div>
+
+      {/* Category & Metric Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total</span>
+          <p className="text-2xl font-extrabold text-slate-100 mt-1">{totalCount}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <span className="text-[10px] font-semibold text-indigo-400 uppercase tracking-wider">Projects</span>
+          <p className="text-2xl font-extrabold text-indigo-300 mt-1">{projectsCount}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <span className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider">Competitions</span>
+          <p className="text-2xl font-extrabold text-purple-300 mt-1">{competitionsCount}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <span className="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider">Workshops</span>
+          <p className="text-2xl font-extrabold text-cyan-300 mt-1">{workshopsCount}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Achievements</span>
+          <p className="text-2xl font-extrabold text-emerald-300 mt-1">{achievementsCount}</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <span className="text-[10px] font-semibold text-amber-400 uppercase tracking-wider">Avg Rating</span>
+          <p className="text-2xl font-extrabold text-amber-400 mt-1 flex items-center gap-1">
+            <Star className="h-4 w-4 fill-amber-400" />
+            {avgRating}
           </p>
         </div>
       </div>
 
-      {/* Academic DSA Notice */}
-      <div className="rounded-2xl border border-indigo-500/20 bg-indigo-950/20 p-6 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-indigo-300">
-            DSA Academic Architecture
-          </h3>
-          <span className="text-xs px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">
-            Stage 1: Foundation
-          </span>
-        </div>
-        <p className="text-sm text-slate-300 leading-relaxed">
-          The foundation establishes Spring Boot REST controllers, PostgreSQL JPA entities, and React UI. In the next stage, custom Java DSA classes in <code className="px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 font-mono text-xs">com.lifelog.dsa</code> will manage experience timelines (LinkedList), recent view history (Stack), pending queues (Queue), lookup indexes (BST), and top-rated experiences (Max Heap).
-        </p>
-      </div>
-
-      {/* Recent Experiences Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-100">Recent Experiences</h3>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onNavigate('add-experience')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition cursor-pointer"
-            >
-              <PlusCircle className="h-3.5 w-3.5" />
-              Add Experience
-            </button>
-            <button
-              onClick={() => onNavigate('experiences')}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer"
-            >
-              View All
-            </button>
-          </div>
-        </div>
-
-        {experiences.length === 0 ? (
-          <div className="p-8 rounded-2xl border border-dashed border-slate-800 text-center space-y-3">
-            <BookOpen className="h-10 w-10 text-slate-600 mx-auto" />
-            <p className="text-slate-400 text-sm font-medium">No experiences recorded yet.</p>
-            <p className="text-slate-400 text-xs max-w-md mx-auto">
-              Start by adding your first project, internship, hackathon, workshop, or milestone.
-            </p>
-            <button
-              onClick={() => onNavigate('add-experience')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/20 transition cursor-pointer"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Add First Experience
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {experiences.slice(0, 3).map((exp) => (
-              <div
-                key={exp.id}
-                className="p-5 rounded-2xl border border-slate-800/80 bg-slate-900/40 hover:border-slate-700 transition flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                      {exp.category}
-                    </span>
-                    {exp.rating && (
-                      <div className="flex items-center text-xs text-amber-400 font-semibold gap-1">
-                        <Star className="h-3.5 w-3.5 fill-amber-400" />
-                        <span>{exp.rating}/5</span>
-                      </div>
-                    )}
-                  </div>
-                  <h4 className="text-base font-semibold text-slate-100 mt-2 line-clamp-1">
-                    {exp.title}
-                  </h4>
-                  <p className="text-xs text-slate-400 mt-1 line-clamp-2">
-                    {exp.description || 'No description provided.'}
-                  </p>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {exp.experienceDate || 'No date'}
-                  </span>
-                  {exp.location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {exp.location}
-                    </span>
-                  )}
-                </div>
+      {/* DSA Active Showcase Cards (2x2 Grid) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Widget 1: Recently Viewed (Stack - LIFO) */}
+        <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-purple-400" />
+                <h3 className="text-sm font-bold text-slate-100">Recently Viewed</h3>
               </div>
-            ))}
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                Custom Stack (LIFO)
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Top of the stack contains the most recently opened items.
+            </p>
+
+            <div className="mt-4 space-y-2">
+              {recentStack.length === 0 ? (
+                <p className="text-xs text-slate-500 italic py-2">
+                  No recently viewed items. Click any experience card to push it onto the stack!
+                </p>
+              ) : (
+                recentStack.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    onClick={() => onSelectExperience(item)}
+                    className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-purple-500/40 transition cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2.5 truncate">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-purple-400 font-mono">
+                        {idx === 0 ? 'TOP' : `#${idx + 1}`}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-200 truncate">{item.title}</span>
+                    </div>
+                    <span className="text-[11px] text-slate-500 shrink-0">{item.category}</span>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        )}
+
+          <button
+            onClick={() => onNavigate('experiences')}
+            className="mt-4 inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 font-semibold cursor-pointer"
+          >
+            Browse all to view more <ArrowRight className="h-3 w-3" />
+          </button>
+        </div>
+
+        {/* Widget 2: Top Rated (Max Heap) */}
+        <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-amber-400" />
+                <h3 className="text-sm font-bold text-slate-100">Top Rated Experiences</h3>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                Custom Max Heap
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Root elements extracted in descending order of rating/importance.
+            </p>
+
+            <div className="mt-4 space-y-2">
+              {topHeap.length === 0 ? (
+                <p className="text-xs text-slate-500 italic py-2">
+                  No rated experiences logged yet.
+                </p>
+              ) : (
+                topHeap.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    onClick={() => onSelectExperience(item)}
+                    className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-amber-500/40 transition cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2.5 truncate">
+                      <span className="text-xs">
+                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-200 truncate">{item.title}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-amber-400 text-xs font-bold shrink-0">
+                      <Star className="h-3 w-3 fill-amber-400" />
+                      <span>{item.rating}/5</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigate('top-rated')}
+            className="mt-4 inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold cursor-pointer"
+          >
+            View full Max Heap leaderboard <ArrowRight className="h-3 w-3" />
+          </button>
+        </div>
+
+        {/* Widget 3: Timeline Preview (Linked List) */}
+        <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-indigo-400" />
+                <h3 className="text-sm font-bold text-slate-100">Timeline Preview</h3>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                Custom Linked List
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Chronological chain with O(1) head and tail insertions.
+            </p>
+
+            <div className="mt-4 space-y-2">
+              {timelineNodes.slice(0, 3).map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => onSelectExperience(item)}
+                  className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-indigo-500/40 transition cursor-pointer flex items-center justify-between"
+                >
+                  <span className="text-xs font-semibold text-slate-200 truncate">{item.title}</span>
+                  <span className="text-[11px] text-slate-500 shrink-0">{item.date || 'Undated'}</span>
+                </div>
+              ))}
+              {timelineNodes.length === 0 && (
+                <p className="text-xs text-slate-500 italic py-2">Timeline is empty.</p>
+              )}
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigate('timeline')}
+            className="mt-4 inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer"
+          >
+            Open full interactive timeline <ArrowRight className="h-3 w-3" />
+          </button>
+        </div>
+
+        {/* Widget 4: Pending Documentation Queue (Queue - FIFO) */}
+        <div className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-emerald-400" />
+                <h3 className="text-sm font-bold text-slate-100">Pending Queue</h3>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                Custom Queue (FIFO)
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              First item in is the next to be documented and processed.
+            </p>
+
+            <div className="mt-4 space-y-2">
+              {pendingQueue.slice(0, 3).map((item, idx) => (
+                <div
+                  key={item.id}
+                  className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 font-mono">
+                      {idx === 0 ? 'FRONT' : `#${idx + 1}`}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-200 truncate">{item.title}</span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 shrink-0">{item.category}</span>
+                </div>
+              ))}
+              {pendingQueue.length === 0 && (
+                <p className="text-xs text-slate-500 italic py-2">Queue is empty. All items documented!</p>
+              )}
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigate('pending-queue')}
+            className="mt-4 inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
+          >
+            Manage pending documentation <ArrowRight className="h-3 w-3" />
+          </button>
+        </div>
       </div>
     </div>
   );
