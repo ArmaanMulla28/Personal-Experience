@@ -1,5 +1,6 @@
 package com.lifelog.dsa.model;
 
+import com.lifelog.model.Experience;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -13,6 +14,8 @@ public class ExperienceItem implements Comparable<ExperienceItem> {
     private Long id;
     private String title;
     private String category;
+    private String description;
+    private String location;
     private LocalDate date;
     private Integer rating;
     private Integer importance;
@@ -38,6 +41,23 @@ public class ExperienceItem implements Comparable<ExperienceItem> {
         this.importance = importance != null ? importance : (rating != null ? rating : 1);
     }
 
+    public static ExperienceItem fromEntity(Experience exp) {
+        if (exp == null) {
+            return null;
+        }
+        ExperienceItem item = new ExperienceItem(
+                exp.getId(),
+                exp.getTitle(),
+                exp.getCategory(),
+                exp.getExperienceDate(),
+                exp.getRating(),
+                exp.getRating()
+        );
+        item.setDescription(exp.getDescription());
+        item.setLocation(exp.getLocation());
+        return item;
+    }
+
     public Long getId() {
         return id;
     }
@@ -60,6 +80,22 @@ public class ExperienceItem implements Comparable<ExperienceItem> {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public LocalDate getDate() {
